@@ -10,13 +10,11 @@
 Hello wORLD
 hELLO World</description>
 	<dependencies>
-		<!-- https://mvnrepository.com/artifact/org.silvertunnel-ng/netlib -->
-<dependency>
-    <groupId>org.silvertunnel-ng</groupId>
-    <artifactId>netlib</artifactId>
-    <version>0.0.5</version>
-</dependency>
-
+		<dependency>
+			<groupId>net.java.dev.jna</groupId>
+			<artifactId>jna</artifactId>
+			<version>4.0.0</version>
+		</dependency>
 
 
 	</dependencies>
