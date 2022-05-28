@@ -79,7 +79,7 @@
 					</descriptorRefs>
 					<archive>
 						<manifest>
-							<mainClass>org.ssltls.App</mainClass>
+							<mainClass>aluka.App</mainClass>
 						</manifest>
 					</archive>
 				</configuration>
