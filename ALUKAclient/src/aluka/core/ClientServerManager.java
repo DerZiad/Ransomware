@@ -11,19 +11,19 @@ import aluka.configuration.Configuration;
 public class ClientServerManager implements Runnable {
 
 	private PublicKey publicKeyServer;
-	private Configuration configuration;
+	private Socket serverConnexion;
 	private EncryptionManager encryption;
 	
-	public ClientServerManager(Configuration configuration,EncryptionManager encryption) {
+	public ClientServerManager(Socket serverConnexion,EncryptionManager encryption) {
 		this.publicKeyServer = Configuration.getServerPublicKey();
-		this.configuration = configuration;
+		this.serverConnexion = serverConnexion;
 		this.encryption = encryption;
 	}
 
 	@Override
 	public void run() {
 		try {
-			Socket serverConnexion = this.configuration.getServerConnexion();
+
 			
 			// TODO
 			PrivateKey privateKey = encryption.getPrivateKey();

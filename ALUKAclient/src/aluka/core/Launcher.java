@@ -2,7 +2,7 @@ package aluka.core;
 
 import java.util.HashMap;
 
-import aluka.configuration.NormalServerConnexion;
+import aluka.configuration.Configuration;
 import aluka.enums.State;
 
 public class Launcher {
@@ -23,7 +23,7 @@ public class Launcher {
 			params.clear();
 			params.put(State.ENCRYPTED.name(), 1);
 			stateManager.saveState(params);
-			Thread thread1 = new Thread(new ClientServerManager(new NormalServerConnexion(), encryption));
+			Thread thread1 = new Thread(new ClientServerManager(Configuration.getSimpleConnexion(), encryption));
 			thread1.start();
 			try {
 				thread1.wait();
@@ -36,7 +36,7 @@ public class Launcher {
 			params.put(State.PRIVATE_KEY_PUSHED.name(), 1);
 		} else {
 			if (stateManager.getStates().get(State.PRIVATE_KEY_PUSHED.name()) == null || stateManager.getStates().get(State.PRIVATE_KEY_PUSHED.name()) == 0) {
-				Thread thread1 = new Thread(new ClientServerManager(new NormalServerConnexion(), encryption));
+				Thread thread1 = new Thread(new ClientServerManager(Configuration.getSimpleConnexion(), encryption));
 				thread1.start();
 				try {
 					thread1.wait();

