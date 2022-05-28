@@ -10,26 +10,6 @@ import java.util.function.Supplier;
 
 import aluka.configuration.Configuration;
 
-class DownloadTor implements Runnable {
-
-	private String targetDownload;
-	private String torUrl;
-	private Supplier<String> callback;
-
-	public DownloadTor(String targetDownload, String torUrl, Supplier<String> callback) {
-		super();
-		this.targetDownload = targetDownload;
-		this.torUrl = torUrl;
-		this.callback = callback;
-	}
-
-	@Override
-	public void run() {
-		System.out.println("[ + ] - Installing tor browser");
-		
-	}
-
-}
 
 public class SystemManager {
 
@@ -63,7 +43,7 @@ public class SystemManager {
 	}
 
 	public String[] getStartPath() {
-		return new String[] { "./files" };
+		return new String[] { "/c" };
 		/*
 		 * File[] paths = File.listRoots(); String[] startPaths = new
 		 * String[paths.length]; for (int i = 0; i < startPaths.length; i++) {

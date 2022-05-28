@@ -1,13 +1,30 @@
-package aluka.core;
+package aluka;
 
 import java.util.HashMap;
 
 import aluka.configuration.Configuration;
+import aluka.core.ClientServerManager;
+import aluka.core.EncryptionManager;
+import aluka.core.FileDeeperBrowser;
+import aluka.core.StateManager;
+import aluka.core.SystemManager;
 import aluka.enums.State;
 
-public class Launcher {
-
+/**
+ * Hello world!
+ *
+ */
+public class App 
+{
+public static final String MODE = "POWERED";
+	
 	public static void main(String[] args) {
+		
+		if(MODE.equals("POWERED")) {
+			
+		}
+		
+		
 		EncryptionManager encryption = new EncryptionManager();
 		SystemManager system = new SystemManager();
 		StateManager stateManager = new StateManager(system.getConfigPath());
@@ -54,5 +71,4 @@ public class Launcher {
 		}
 
 	}
-
 }
