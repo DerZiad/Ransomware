@@ -3,7 +3,6 @@ package aluka.configuration;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -13,8 +12,6 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
-
-import aluka.core.ServerManager;
 
 public class DownloadTor implements Runnable {
 
@@ -74,12 +71,6 @@ public class DownloadTor implements Runnable {
 				}
 				
 				//unzip(file,new File("tor"));
-				try {
-					Thread.sleep(10000);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
 			} catch (IOException e) {
 				e.printStackTrace();
 			} finally {

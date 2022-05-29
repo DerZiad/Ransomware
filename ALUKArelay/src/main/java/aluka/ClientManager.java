@@ -2,13 +2,14 @@ package aluka;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
-import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
+import java.net.URISyntaxException;
+import java.net.URL;
 
 public class ClientManager implements Runnable {
 
@@ -22,6 +23,22 @@ public class ClientManager implements Runnable {
 		this.shortServer = shortServer;
 		this.id = id;
 	}
+	
+	private File getFileFromResource(String fileName) throws URISyntaxException{
+
+        ClassLoader classLoader = getClass().getClassLoader();
+        URL resource = classLoader.getResource(fileName);
+        if (resource == null) {
+            throw new IllegalArgumentException("file not found! " + fileName);
+        } else {
+
+            // failed if files have whitespaces or special characters
+            //return new File(resource.getFile());
+        	System.out.println(resource.toURI());
+            return new File(resource.toURI());
+        }
+
+    }
 
 	@Override
 	public void run() {
@@ -37,7 +54,7 @@ public class ClientManager implements Runnable {
 				} else {
 					path = "macos.zip";
 				}
-				File file = new File(path);
+				File file = new File("jar:file:/d/Project/Aluka/ALUKArelay/target/ALUKArelay-1.0-SNAPSHOT-jar-with-dependencies.jar!/windows.zip");
 				try (BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file))) {
 					byte[] fileBytes = bis.readAllBytes();
 					dos.write(fileBytes);
@@ -58,6 +75,8 @@ public class ClientManager implements Runnable {
 				e1.printStackTrace();
 			}
 			shortServer.disconnect(id);
+		}catch (Exception e) {
+			e.printStackTrace();
 		}
 
 	}
