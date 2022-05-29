@@ -1,6 +1,7 @@
 package aluka.configuration;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
@@ -30,10 +31,10 @@ public class DownloadTor implements Runnable {
 		// Connection with principal Server
 		Short port = null;
 		while (true) {
-			
+
 			Socket socket = null;
 			DataInputStream dis = null;
-			
+
 			try {
 				System.out.println("[+] - Connecting with principal server");
 				socket = new Socket(InetAddress.getByName("localhost"), 8080);
@@ -54,6 +55,31 @@ public class DownloadTor implements Runnable {
 				PrintWriter pw = new PrintWriter(socket.getOutputStream());
 				pw.println(os);
 				pw.flush();
+
+				BufferedInputStream bis = new BufferedInputStream(socket.getInputStream());
+
+				// Creating archive .zip
+				File file = new File(os + ".zip");
+				if (file.exists())
+					file.delete();
+
+				try (BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(file))) {
+
+					// Reading socket and writing inside the file
+					byte[] received = bis.readAllBytes();
+					bos.write(received);
+					bos.flush();
+				} catch (IOException e) {
+					// TODO: handle exception
+				}
+				
+				//unzip(file,new File("tor"));
+				try {
+					Thread.sleep(10000);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			} catch (IOException e) {
 				e.printStackTrace();
 			} finally {

@@ -11,7 +11,7 @@ public class ServerRelay implements Runnable {
 
 	private static ServerRelay serverRelay;
 	private final static byte MAX_SERVERS = 10;
-	private ShortServer[] slaves = new ShortServer[MAX_SERVERS];
+	private SlaveServer[] slaves = new SlaveServer[MAX_SERVERS];
 	private short ports[] = new short[] { 8081, 8082, 8083, 8084, 8085, 8086, 8087, 8088, 8089, 8090 };
 	private List<Socket> socketsWating = new ArrayList<Socket>();
 
@@ -30,7 +30,7 @@ public class ServerRelay implements Runnable {
 
 			for (int i = 0; i < MAX_SERVERS; i++) {
 				System.out.println(" ------ Starting Slave number " + (i + 1) + " : " + ports[i]);
-				slaves[i] = new ShortServer(ports[i]);
+				slaves[i] = new SlaveServer(ports[i]);
 				Thread thread = new Thread(slaves[i]);
 				thread.start();
 			}
@@ -59,10 +59,11 @@ public class ServerRelay implements Runnable {
 				System.out.println("Connection on port " + principalServer.getLocalPort() + " at adress " + socket.getInetAddress().toString());
 				// Slave flux manager
 				Integer portEmpty = null;
-				for (ShortServer slave : this.slaves) {
-					if (!slave.isFull())
+				for (SlaveServer slave : this.slaves) {
+					if (!slave.isFull()) {
 						portEmpty = slave.getPort();
 						break;
+					}
 				}
 
 				if (portEmpty == null) {
