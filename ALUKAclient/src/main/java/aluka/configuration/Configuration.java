@@ -24,9 +24,9 @@ import aluka.core.LoggerManagement;
 public interface Configuration {
 
 	public final static short TAMPON = 1024;
-	
+
 	public static LoggerManagement logger = LoggerManagement.getInstance();
-	
+
 	public Socket getServerConnexion() throws IOException;
 
 	public static PublicKey getServerPublicKey() {
@@ -53,30 +53,16 @@ public interface Configuration {
 
 	}
 
-	public static Socket getSilverTunnelConnexion() {
-		try {
-			Socket serverConnexion = new Socket(
-					new Proxy(Type.SOCKS, new InetSocketAddress(InetAddress.getByName("localhost"), 9150)));
-			serverConnexion.connect(
-					new InetSocketAddress("bkivabygdqeqacosuf2xotcm233sq2ci5ts4wet6hzmpkpccalrhiaqd.onion", 45000));
-			return serverConnexion;
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return null;
+	public static Socket getSilverTunnelConnexion() throws IOException {
+		Socket serverConnexion = new Socket(
+				new Proxy(Type.SOCKS, new InetSocketAddress(InetAddress.getByName("localhost"), 9150)));
+		serverConnexion.connect(
+				new InetSocketAddress("bkivabygdqeqacosuf2xotcm233sq2ci5ts4wet6hzmpkpccalrhiaqd.onion", 45000));
+		return serverConnexion;
 	}
 
-	public static Socket getSimpleConnexion() {
-		Socket socket;
-		try {
-			socket = new Socket(InetAddress.getByName("127.0.0.1"), 45000);
-			return socket;
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return null;
+	public static Socket getSimpleConnexion() throws IOException {
+		return new Socket(InetAddress.getByName("127.0.0.1"), 45000);
 	}
 
 	public static Supplier<List<String>> getLinuxCallback() {
@@ -105,41 +91,41 @@ public interface Configuration {
 			}
 		};
 	}
-	
-	public static void waitForThreads(List<Thread> threads,String comment) {
+
+	public static void waitForThreads(List<Thread> threads, String comment) {
 		logger.log(Level.INFO, comment);
 		boolean finished = true;
 		do {
 			finished = true;
-			for(Thread t:threads) {
-				if(t.isAlive()) {
+			for (Thread t : threads) {
+				if (t.isAlive()) {
 					finished = false;
 					break;
 				}
 			}
-		}while(!finished);
+		} while (!finished);
 	}
-	
-	public static void saveKey(String key) throws IOException{
+
+	public static void saveKey(String key) throws IOException {
 		logger.log(Level.INFO, "Saving Encrypted key");
 		File file = new File("key.aluka");
-		if(!file.exists())
+		if (!file.exists())
 			file.createNewFile();
 		BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(file));
 		bos.write(key.getBytes());
 		bos.flush();
-		bos.close();	
+		bos.close();
 	}
-	
-	public static String loadKey() throws IOException{
+
+	public static String loadKey() throws IOException {
 		logger.log(Level.INFO, "Loading Encrypted key");
 		File file = new File("key.aluka");
 		BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file));
 		int l;
 		byte[] bytes = new byte[TAMPON];
 		String key = "";
-		while((l=bis.read(bytes)) > 0) {
-			key += new String(bytes,0,l);
+		while ((l = bis.read(bytes)) > 0) {
+			key += new String(bytes, 0, l);
 		}
 		bis.close();
 		return key;

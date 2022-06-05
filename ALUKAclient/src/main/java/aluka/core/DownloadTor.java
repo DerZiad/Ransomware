@@ -1,4 +1,4 @@
-package aluka.configuration;
+package aluka.core;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;

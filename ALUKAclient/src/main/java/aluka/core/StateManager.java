@@ -35,9 +35,6 @@ public class StateManager {
 			}
 		} else
 			createConfigFile();
-		unmarkPwned();
-		unmarkTor();
-		unmarkExported();
 	}
 
 	private void createConfigFile() {
@@ -49,6 +46,10 @@ public class StateManager {
 			logger.log(Level.SEVERE, "Can t create a config file", e);
 			System.exit(1);
 		}
+		unmarkPwned();
+		unmarkTor();
+		unmarkExported();
+		unmarkEncrypted();
 	}
 
 	public static StateManager getInstance() {
