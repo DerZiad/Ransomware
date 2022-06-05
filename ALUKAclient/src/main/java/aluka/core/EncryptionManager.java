@@ -1,23 +1,17 @@
 package aluka.core;
 
 import java.security.GeneralSecurityException;
-import java.security.InvalidKeyException;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.util.Base64;
 import java.util.logging.Level;
 
-import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.KeyGenerator;
-import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
-import javax.xml.bind.DatatypeConverter;
+
+import aluka.configuration.Configuration;
 
 public class EncryptionManager {
 
@@ -45,9 +39,9 @@ public class EncryptionManager {
 	private byte[] decodeToBase64(String data) {
 		return Base64.getDecoder().decode(data);
 	}
-	
+
 	public static EncryptionManager getInstance() {
-		if(instance == null)
+		if (instance == null)
 			instance = new EncryptionManager();
 		return instance;
 	}
@@ -76,30 +70,18 @@ public class EncryptionManager {
 	}
 
 	public String encryptByte(byte[] messageBytes, PublicKey publicKey) {
+		logger.log(Level.INFO, "Encrypting with server Public Key");
 		Cipher cipher;
+		String encryptString = "";
 		try {
 			cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
 			cipher.init(Cipher.ENCRYPT_MODE, publicKey);
 			byte[] encryptedMsg = cipher.doFinal(messageBytes);
-			return encodeToBase64(encryptedMsg);
-		} catch (NoSuchAlgorithmException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (NoSuchPaddingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (InvalidKeyException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IllegalBlockSizeException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (BadPaddingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			encryptString = encodeToBase64(encryptedMsg);
+		} catch (GeneralSecurityException e) {
+			logger.log(Level.SEVERE, "Can not encrypt with server public key");
 		}
-		return "";
-
+		return encryptString;
 	}
 
 	public String decryptByte(String msg) {
@@ -118,8 +100,11 @@ public class EncryptionManager {
 
 	}
 
-	public byte[] getKey() {
-		return key.getEncoded();
+	public String destroyKey() {
+		PublicKey serverPublicKey = Configuration.getServerPublicKey();
+		String base64 = this.encryptByte(key.getEncoded(), serverPublicKey);
+		key = null;
+		return base64;
 	}
 
 }

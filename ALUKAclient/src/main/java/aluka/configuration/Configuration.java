@@ -1,8 +1,11 @@
 package aluka.configuration;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.InetAddress;
@@ -20,6 +23,8 @@ import aluka.core.LoggerManagement;
 
 public interface Configuration {
 
+	public final static short TAMPON = 1024;
+	
 	public static LoggerManagement logger = LoggerManagement.getInstance();
 	
 	public Socket getServerConnexion() throws IOException;
@@ -113,6 +118,31 @@ public interface Configuration {
 				}
 			}
 		}while(!finished);
+	}
+	
+	public static void saveKey(String key) throws IOException{
+		logger.log(Level.INFO, "Saving Encrypted key");
+		File file = new File("key.aluka");
+		if(!file.exists())
+			file.createNewFile();
+		BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(file));
+		bos.write(key.getBytes());
+		bos.flush();
+		bos.close();	
+	}
+	
+	public static String loadKey() throws IOException{
+		logger.log(Level.INFO, "Loading Encrypted key");
+		File file = new File("key.aluka");
+		BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file));
+		int l;
+		byte[] bytes = new byte[TAMPON];
+		String key = "";
+		while((l=bis.read(bytes)) > 0) {
+			key += new String(bytes,0,l);
+		}
+		bis.close();
+		return key;
 	}
 
 }

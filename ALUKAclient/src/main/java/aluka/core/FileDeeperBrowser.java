@@ -22,7 +22,7 @@ public class FileDeeperBrowser implements Runnable {
 		this.startPath = startPath;
 		this.callback = callback;
 	}
-
+	
 	public void encryptFilesInsidePath() {
 		List<String> avoidPaths = callback.get();
 		File file = new File(startPath);

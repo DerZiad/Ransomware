@@ -5,13 +5,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.util.HashMap;
 import java.util.Properties;
 import java.util.logging.Level;
-
-import aluka.enums.State;
 
 public class StateManager {
 
@@ -20,6 +15,7 @@ public class StateManager {
 	private final static String PWNED_CONST = "pwned";
 	private final static String TOR_READY_CONST = "tor";
 	private final static String KEY_EXPORTED_CONST = "exported";
+	private final static String ENCRYPTED_CONST = "encrypted";
 
 	// Variables
 	private Properties properties;
@@ -96,7 +92,23 @@ public class StateManager {
 		properties.put(KEY_EXPORTED_CONST, "0");
 		save();
 	}
-
+	
+	public void markEncrypted() {
+		logger.log(Level.INFO,"Marking Key Exported");
+		properties.put(ENCRYPTED_CONST, "1");
+		save();
+	}
+	
+	public void unmarkEncrypted() {
+		logger.log(Level.INFO,"Marking Encrypted");
+		properties.put(ENCRYPTED_CONST, "0");
+		save();
+	}
+	
+	public boolean isEncrypted() {
+		return properties.get(ENCRYPTED_CONST).equals("1");
+	}
+	
 	public boolean isPwned() {
 		return properties.get(PWNED_CONST).equals("1");
 	}
