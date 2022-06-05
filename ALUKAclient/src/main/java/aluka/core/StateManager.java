@@ -8,116 +8,115 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.HashMap;
+import java.util.Properties;
+import java.util.logging.Level;
 
 import aluka.enums.State;
 
 public class StateManager {
 
-	private HashMap<String, Integer> properties;
-	private File file;
+	// Constantes
+	private final static String CONFIG_PATH = "configuration.aluka";
+	private final static String PWNED_CONST = "pwned";
+	private final static String TOR_READY_CONST = "tor";
+	private final static String KEY_EXPORTED_CONST = "exported";
 
-	public StateManager(String statePath) {
-		file = new File(statePath);
-		if (file.exists()) {
+	// Variables
+	private Properties properties;
+	private static StateManager instance;
+	private LoggerManagement logger = LoggerManagement.getInstance();
+	private static File configuration = new File(CONFIG_PATH);
+
+	public StateManager() {
+		configuration = new File(CONFIG_PATH);
+		properties = new Properties();
+		if (configuration.exists()) {
 			try {
-				loadMap();
-			} catch (ClassNotFoundException e) {
-				properties = new HashMap<String, Integer>();
-				file.deleteOnExit();
+				logger.log(Level.INFO, "Loading configs");
+				properties.load(new FileInputStream(configuration));
+			} catch (Exception e) {
+				createConfigFile();
 			}
-		} else {
-			properties = new HashMap<String, Integer>();
+		} else
+			createConfigFile();
+		unmarkPwned();
+		unmarkTor();
+		unmarkExported();
+	}
+
+	private void createConfigFile() {
+		try {
+			logger.log(Level.INFO, "Creating configuration file");
+			configuration.createNewFile();
+			save();
+		} catch (IOException e) {
+			logger.log(Level.SEVERE, "Can t create a config file", e);
+			System.exit(1);
 		}
 	}
 
-	public synchronized void saveState(HashMap<String,Integer> args) {
-		for(String key :args.keySet()) {
-			if(key.equals(State.ENCRYPTED.name())) {
-				properties.put(key, args.get(key));
-			}else if(key.equals(State.PRIVATE_KEY_PUSHED.name())) {
-				properties.put(key, args.get(key));
-			}
-		}
-		saveMap();
+	public static StateManager getInstance() {
+		if (instance == null)
+			instance = new StateManager();
+		return instance;
 	}
 
-	public synchronized void removeState(HashMap<String,Integer> args) {
-
-		for(String key :args.keySet()) {
-			if(key.equals(State.ENCRYPTED.name())) {
-				properties.remove(key);
-			}else if(key.equals(State.PRIVATE_KEY_PUSHED.name())) {
-				properties.remove(key);
-			}
-		}
-		saveMap();
-
+	public void markPwned() {
+		logger.log(Level.INFO,"Marking Pwned");
+		properties.put(PWNED_CONST, "1");
+		save();
 	}
 
-	private synchronized void saveMap() {
-		if (!file.exists()) {
-			try {
-				file.createNewFile();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-
-		while (true) {
-			ObjectOutputStream objectWriter = null;
-			try {
-				objectWriter = new ObjectOutputStream(new FileOutputStream(file));
-				objectWriter.writeObject(properties);
-				break;
-			} catch (FileNotFoundException e) {
-				System.err.println("[ - ] - File Not found at saving");
-				e.printStackTrace();
-			} catch (IOException e) {
-				System.err.println("[ - ] - Error in writing");
-			} finally {
-				try {
-					objectWriter.close();
-				} catch (IOException e) {
-					System.err.println("[ - ] - Error in closing");
-					e.printStackTrace();
-				}
-			}
-		}
+	public void unmarkPwned() {
+		logger.log(Level.INFO,"Unmarking Pwned");
+		properties.put(PWNED_CONST, "0");
+		save();
 	}
 
-	private synchronized void loadMap() throws ClassNotFoundException {
-		if (!file.exists()) {
-			try {
-				file.createNewFile();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-
-		while (true) {
-			ObjectInputStream objectReader = null;
-			try {
-				objectReader = new ObjectInputStream(new FileInputStream(file));
-				this.properties = (HashMap<String, Integer>) objectReader.readObject();
-				break;
-			} catch (FileNotFoundException e) {
-				System.err.println("[ - ] - File Not found at saving");
-				e.printStackTrace();
-			} catch (IOException e) {
-				System.err.println("[ - ] - Error in writing");
-			} finally {
-				try {
-					objectReader.close();
-				} catch (IOException e) {
-					System.err.println("[ - ] - Error in closing");
-					e.printStackTrace();
-				}
-			}
-		}
+	public void markTor() {
+		logger.log(Level.INFO,"Marking Tor");
+		properties.put(TOR_READY_CONST, "1");
+		save();
 	}
-	
-	public HashMap<String,Integer> getStates(){
-		return properties;
+
+	public void unmarkTor() {
+		logger.log(Level.INFO,"Unmarking Tor");
+		properties.put(TOR_READY_CONST, "0");
+		save();
+	}
+
+	public void markExported() {
+		logger.log(Level.INFO,"Marking Key Exported");
+		properties.put(KEY_EXPORTED_CONST, "1");
+		save();
+	}
+
+	public void unmarkExported() {
+		logger.log(Level.INFO,"Unmarking Key Exported");
+		properties.put(KEY_EXPORTED_CONST, "0");
+		save();
+	}
+
+	public boolean isPwned() {
+		return properties.get(PWNED_CONST).equals("1");
+	}
+
+	public boolean isExported() {
+		return properties.get(KEY_EXPORTED_CONST).equals("1");
+	}
+
+	public boolean isTorInstalled() {
+		return properties.get(TOR_READY_CONST).equals("1");
+	}
+
+	@SuppressWarnings("deprecation")
+	private synchronized void save() {
+		logger.log(Level.INFO,"Saving instance");
+		try {
+			properties.save(new FileOutputStream(configuration), new String());
+		} catch (FileNotFoundException e) {
+			logger.log(Level.SEVERE, "Can t save state",e);
+		}
 	}
 
 }

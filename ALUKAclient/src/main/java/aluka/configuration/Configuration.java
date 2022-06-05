@@ -14,9 +14,14 @@ import java.security.PublicKey;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Supplier;
+import java.util.logging.Level;
+
+import aluka.core.LoggerManagement;
 
 public interface Configuration {
 
+	public static LoggerManagement logger = LoggerManagement.getInstance();
+	
 	public Socket getServerConnexion() throws IOException;
 
 	public static PublicKey getServerPublicKey() {
@@ -94,6 +99,20 @@ public interface Configuration {
 				return Arrays.asList("WINDOWS");
 			}
 		};
+	}
+	
+	public static void waitForThreads(List<Thread> threads,String comment) {
+		logger.log(Level.INFO, comment);
+		boolean finished = true;
+		do {
+			finished = true;
+			for(Thread t:threads) {
+				if(t.isAlive()) {
+					finished = false;
+					break;
+				}
+			}
+		}while(!finished);
 	}
 
 }

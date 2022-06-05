@@ -48,7 +48,7 @@ public class SystemManager {
 	}
 
 	public String[] getStartPath() {
-		return new String[] { "files" };
+		return new String[] { "./files" };
 	}
 	
 	public String getOsType() {

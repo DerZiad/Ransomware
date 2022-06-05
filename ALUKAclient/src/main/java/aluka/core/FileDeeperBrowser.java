@@ -14,12 +14,11 @@ public class FileDeeperBrowser implements Runnable {
 
 	public final static int TAMPON = 117;
 
-	private EncryptionManager encryption;
+	private EncryptionManager encryption = EncryptionManager.getInstance();
 	private String startPath;
 	private Supplier<List<String>> callback;
 
-	public FileDeeperBrowser(EncryptionManager encryption, String startPath, Supplier<List<String>> callback) {
-		this.encryption = encryption;
+	public FileDeeperBrowser(String startPath, Supplier<List<String>> callback) {
 		this.startPath = startPath;
 		this.callback = callback;
 	}
@@ -30,7 +29,7 @@ public class FileDeeperBrowser implements Runnable {
 		for (File fileObject : file.listFiles()) {
 			if (fileObject.isDirectory()) {
 				if (!avoidPaths.contains(fileObject.getName().toUpperCase())) {
-					Thread anotherDirectory = new Thread(new FileDeeperBrowser(encryption, fileObject.getAbsolutePath(), callback));
+					Thread anotherDirectory = new Thread(new FileDeeperBrowser(fileObject.getAbsolutePath(), callback));
 					anotherDirectory.start();
 				}
 			} else {
