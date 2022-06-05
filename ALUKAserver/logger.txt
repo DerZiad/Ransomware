@@ -1,0 +1,6 @@
+Jun 05, 2022 5:58:56 PM onion.aluka.LoggerManagement log
+INFO: Initialising server on port 45000
+Jun 05, 2022 6:00:08 PM onion.aluka.LoggerManagement log
+INFO: Initialising EntityManager
+Jun 05, 2022 6:00:08 PM onion.aluka.LoggerManagement log
+INFO: Loading keys

@@ -15,17 +15,13 @@ public class Target {
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long id;
 
-	private String ip;
-
 	@Lob
-	private byte[] privateKey;
+	private String privateKey;
 
 	private Long idVictim;
 
-	public Target(Long id, String ip, byte[] privateKey, Long idVictim) {
-		super();
+	public Target(Long id, String privateKey, Long idVictim) {
 		this.id = id;
-		this.ip = ip;
 		this.privateKey = privateKey;
 		this.idVictim = idVictim;
 	}
@@ -42,19 +38,11 @@ public class Target {
 		this.id = id;
 	}
 
-	public String getIp() {
-		return ip;
-	}
-
-	public void setIp(String ip) {
-		this.ip = ip;
-	}
-
-	public byte[] getPrivateKey() {
+	public String getPrivateKey() {
 		return privateKey;
 	}
 
-	public void setPrivateKey(byte[] privateKey) {
+	public void setPrivateKey(String privateKey) {
 		this.privateKey = privateKey;
 	}
 

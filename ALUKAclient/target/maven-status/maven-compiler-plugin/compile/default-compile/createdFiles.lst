@@ -6,8 +6,8 @@ aluka/core/SystemManager.class
 aluka/configuration/Configuration.class
 aluka/core/EncryptionManager.class
 aluka/core/StateManager.class
+aluka/core/DownloadTor.class
 aluka/core/FileDeeperBrowser.class
-aluka/configuration/DownloadTor.class
 aluka/destructors/Destructor.class
 aluka/enums/State.class
 aluka/core/LoggerManagement.class
