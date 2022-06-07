@@ -1,6 +1,7 @@
 package aluka.core;
 
 import java.security.GeneralSecurityException;
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.SecureRandom;
@@ -10,6 +11,7 @@ import java.util.logging.Level;
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
 
 import aluka.configuration.Configuration;
 
@@ -20,14 +22,20 @@ public class EncryptionManager {
 	private static final short byteNumber = 256;
 
 	private static EncryptionManager instance;
-	private LoggerManagement logger = LoggerManagement.getInstance();
+	private static StateManager stateManager = StateManager.getInstance();
+	private static LoggerManagement logger = LoggerManagement.getInstance();
 	private SecretKey key;
+	private String signature;
+	
 
 	private EncryptionManager() {
 		try {
+			
 			key = createAESKey();
+			signIt();
 		} catch (NoSuchAlgorithmException e) {
 			logger.log(Level.SEVERE, "Algorithm not found", e);
+			System.exit(1);
 		}
 	}
 
@@ -53,6 +61,18 @@ public class EncryptionManager {
 		keygenerator.init(256, securerandom);
 		SecretKey key = keygenerator.generateKey();
 		return key;
+	}
+	
+	private void signIt() {
+		try {
+			MessageDigest hasher = MessageDigest.getInstance("SHA256");
+			byte[] msgHashed = hasher.digest(this.key.getEncoded());
+			signature = new String(msgHashed);
+			stateManager.signit(signature);
+		} catch (NoSuchAlgorithmException e) {
+			logger.log(Level.WARNING, "Algorithm invalid");
+			System.exit(1);
+		}
 	}
 
 	public String encryptByte(byte[] messageBytes) {
@@ -106,5 +126,11 @@ public class EncryptionManager {
 		key = null;
 		return base64;
 	}
+	
+	public void configureDecryptMode(String key) {
+		this.key = new SecretKeySpec(this.key.getEncoded(), ALGORITHM);
+	}
+	
+	
 
 }

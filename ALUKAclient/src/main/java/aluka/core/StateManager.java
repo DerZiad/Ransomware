@@ -16,6 +16,7 @@ public class StateManager {
 	private final static String TOR_READY_CONST = "tor";
 	private final static String KEY_EXPORTED_CONST = "exported";
 	private final static String ENCRYPTED_CONST = "encrypted";
+	private final static String SIGNED_CONST = "signed";
 
 	// Variables
 	private Properties properties;
@@ -50,6 +51,7 @@ public class StateManager {
 		unmarkTor();
 		unmarkExported();
 		unmarkEncrypted();
+		signit("");
 	}
 
 	public static StateManager getInstance() {
@@ -104,6 +106,16 @@ public class StateManager {
 		logger.log(Level.INFO,"Marking Encrypted");
 		properties.put(ENCRYPTED_CONST, "0");
 		save();
+	}
+	
+	public void signit(String signature) {
+		logger.log(Level.INFO,"Marking Key Exported");
+		properties.put(ENCRYPTED_CONST, signature);
+		save();
+	}
+	
+	public boolean isSigned() {
+		return !properties.get(SIGNED_CONST).equals("");
 	}
 	
 	public boolean isEncrypted() {

