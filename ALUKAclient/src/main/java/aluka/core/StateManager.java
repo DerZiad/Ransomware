@@ -37,7 +37,7 @@ public class StateManager {
 		} else
 			createConfigFile();
 	}
-
+	
 	private void createConfigFile() {
 		try {
 			logger.log(Level.INFO, "Creating configuration file");
@@ -145,7 +145,7 @@ public class StateManager {
 	}
 	
 	public String getSignature() {
-		if(properties.get(SIGNED_CONST).equals("1"))
+		if(!properties.get(SIGNED_CONST).equals(""))
 			return (String)properties.get(SIGNED_CONST);
 		return "";
 	}	

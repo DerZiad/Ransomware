@@ -14,11 +14,13 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
 import aluka.configuration.Configuration;
+import aluka.exception.InvalidKeyException;
 
 public class EncryptionManager {
 
 	// Variables
-	private static final String ALGORITHM = "AES";
+	private static final String SYNC_ENCRYPTION_ALGORITHM = "AES";
+	private static final String HASH_ALGORITHM = "SHA256";
 	private static final short byteNumber = 256;
 
 	private static EncryptionManager instance;
@@ -58,31 +60,45 @@ public class EncryptionManager {
 	}
 
 	private SecretKey createAESKey() throws NoSuchAlgorithmException {
-		logger.log(Level.INFO, "Generating " + ALGORITHM + " " + byteNumber + " KEY");
+		logger.log(Level.INFO, "Generating " + SYNC_ENCRYPTION_ALGORITHM + " " + byteNumber + " KEY");
 		SecureRandom securerandom = new SecureRandom();
-		KeyGenerator keygenerator = KeyGenerator.getInstance(ALGORITHM);
+		KeyGenerator keygenerator = KeyGenerator.getInstance(SYNC_ENCRYPTION_ALGORITHM);
 		keygenerator.init(256, securerandom);
 		SecretKey key = keygenerator.generateKey();
 		return key;
 	}
-
-	private void signIt() {
+	
+	private String hashSHA(byte[] bytesCode) {
 		try {
-			MessageDigest hasher = MessageDigest.getInstance("SHA256");
-			byte[] msgHashed = hasher.digest(this.key.getEncoded());
-			signature = new String(msgHashed);
-			stateManager.signit(signature);
+			MessageDigest hasher = MessageDigest.getInstance(HASH_ALGORITHM);
+			byte[] hash = hasher.digest(bytesCode);
+			StringBuilder hexString = new StringBuilder(2 * hash.length);
+		    for (int i = 0; i < hash.length; i++) {
+		        String hex = Integer.toHexString(0xff & hash[i]);
+		        if(hex.length() == 1) {
+		            hexString.append('0');
+		        }
+		        hexString.append(hex);
+		    }
+		    return hexString.toString();
 		} catch (NoSuchAlgorithmException e) {
 			logger.log(Level.WARNING, "Algorithm invalid");
 			System.exit(1);
+			return "";
 		}
+	}
+	
+		
+	private void signIt() {
+		signature = hashSHA(this.key.getEncoded());
+		stateManager.signit(signature);
 	}
 
 	public String encryptByte(byte[] messageBytes) {
 		Cipher cipher;
 		String encryptedMsg = "";
 		try {
-			cipher = Cipher.getInstance(ALGORITHM);
+			cipher = Cipher.getInstance(SYNC_ENCRYPTION_ALGORITHM);
 			cipher.init(Cipher.ENCRYPT_MODE, this.key);
 			byte[] encryptedMsgBytes = cipher.doFinal(messageBytes);
 			encryptedMsg = encodeToBase64(encryptedMsgBytes);
@@ -111,7 +127,7 @@ public class EncryptionManager {
 		String msgDecrypted = "";
 		Cipher cipher;
 		try {
-			cipher = Cipher.getInstance(ALGORITHM);
+			cipher = Cipher.getInstance(SYNC_ENCRYPTION_ALGORITHM);
 			cipher.init(Cipher.DECRYPT_MODE, this.key);
 			byte[] messageBytes = decodeToBase64(msg);
 			byte[] decryptedMsg = cipher.doFinal(messageBytes);
@@ -125,13 +141,19 @@ public class EncryptionManager {
 
 	public String destroyKey() {
 		PublicKey serverPublicKey = Configuration.getServerPublicKey();
+		System.out.println(encodeToBase64(key.getEncoded()));
 		String base64 = this.encryptByte(key.getEncoded(), serverPublicKey);
 		key = null;
 		return base64;
 	}
 
-	public void configureDecryptMode(String key) {
-		this.key = new SecretKeySpec(this.key.getEncoded(), ALGORITHM);
+	public void configureDecryptMode(String key) throws InvalidKeyException{
+		byte[] dataKey = decodeToBase64(key);
+		String signature = hashSHA(dataKey);
+		if(this.signature.equals(signature))
+			this.key = new SecretKeySpec(dataKey,SYNC_ENCRYPTION_ALGORITHM);
+		else
+			throw new InvalidKeyException("The entered key is invalid");
 	}
 
 }

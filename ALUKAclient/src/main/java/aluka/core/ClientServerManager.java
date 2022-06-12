@@ -17,7 +17,6 @@ public class ClientServerManager {
 		BufferedOutputStream bos = new BufferedOutputStream(serverConnexion.getOutputStream());
 		bos.write(key.getBytes());
 		bos.flush();
+		serverConnexion.close();
 	}
-	
-	
 }
