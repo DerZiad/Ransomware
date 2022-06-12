@@ -2,6 +2,7 @@
 # Edit at https://www.gitignore.io/?templates=java,maven,eclipse,intellij+all,visualstudiocode
 
 ### Eclipse ###
+*logger.txt*
 *target/*
 *.settings*
 *.idea*
