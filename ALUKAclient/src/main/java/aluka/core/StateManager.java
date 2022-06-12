@@ -110,7 +110,7 @@ public class StateManager {
 	
 	public void signit(String signature) {
 		logger.log(Level.INFO,"Marking Key Exported");
-		properties.put(ENCRYPTED_CONST, signature);
+		properties.put(SIGNED_CONST, signature);
 		save();
 	}
 	
@@ -143,5 +143,11 @@ public class StateManager {
 			logger.log(Level.SEVERE, "Can t save state",e);
 		}
 	}
+	
+	public String getSignature() {
+		if(properties.get(SIGNED_CONST).equals("1"))
+			return (String)properties.get(SIGNED_CONST);
+		return "";
+	}	
 
 }

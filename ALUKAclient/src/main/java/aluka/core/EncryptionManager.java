@@ -26,16 +26,19 @@ public class EncryptionManager {
 	private static LoggerManagement logger = LoggerManagement.getInstance();
 	private SecretKey key;
 	private String signature;
-	
 
 	private EncryptionManager() {
-		try {
-			
-			key = createAESKey();
-			signIt();
-		} catch (NoSuchAlgorithmException e) {
-			logger.log(Level.SEVERE, "Algorithm not found", e);
-			System.exit(1);
+		if (!stateManager.isSigned()) {
+			try {
+
+				key = createAESKey();
+				signIt();
+			} catch (NoSuchAlgorithmException e) {
+				logger.log(Level.SEVERE, "Algorithm not found", e);
+				System.exit(1);
+			}
+		} else {
+				signature = stateManager.getSignature();
 		}
 	}
 
@@ -62,7 +65,7 @@ public class EncryptionManager {
 		SecretKey key = keygenerator.generateKey();
 		return key;
 	}
-	
+
 	private void signIt() {
 		try {
 			MessageDigest hasher = MessageDigest.getInstance("SHA256");
@@ -126,11 +129,9 @@ public class EncryptionManager {
 		key = null;
 		return base64;
 	}
-	
+
 	public void configureDecryptMode(String key) {
 		this.key = new SecretKeySpec(this.key.getEncoded(), ALGORITHM);
 	}
-	
-	
 
 }

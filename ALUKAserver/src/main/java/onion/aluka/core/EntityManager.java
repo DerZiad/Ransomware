@@ -138,7 +138,7 @@ public class EntityManager {
 			cipher.init(Cipher.DECRYPT_MODE, this.privateKey);
 			byte[] messageBytes = decodeToBase64(msg);
 			byte[] decryptedMsg = cipher.doFinal(messageBytes);
-			msgDecrypted = new String(decryptedMsg);
+			msgDecrypted = encodeToBase64(decryptedMsg);
 		} catch (GeneralSecurityException e) {
 			loggerManagement.log(Level.WARNING, "Decryption configuration problem", e);
 		}
