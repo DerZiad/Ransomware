@@ -148,12 +148,16 @@ public class EncryptionManager {
 	}
 
 	public void configureDecryptMode(String key) throws InvalidKeyException{
+		try {
 		byte[] dataKey = decodeToBase64(key);
 		String signature = hashSHA(dataKey);
 		if(this.signature.equals(signature))
 			this.key = new SecretKeySpec(dataKey,SYNC_ENCRYPTION_ALGORITHM);
 		else
 			throw new InvalidKeyException("The entered key is invalid");
+		}catch(IllegalArgumentException e) {
+			throw new InvalidKeyException("The entered key is invalid");
+		}
 	}
 
 }

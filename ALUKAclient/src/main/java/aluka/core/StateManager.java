@@ -8,6 +8,8 @@ import java.io.IOException;
 import java.util.Properties;
 import java.util.logging.Level;
 
+import javax.print.DocFlavor.INPUT_STREAM;
+
 public class StateManager {
 
 	// Constantes
@@ -17,6 +19,7 @@ public class StateManager {
 	private final static String KEY_EXPORTED_CONST = "exported";
 	private final static String ENCRYPTED_CONST = "encrypted";
 	private final static String SIGNED_CONST = "signed";
+	private final static String ITERATION_NUMBER = "iteration";
 
 	// Variables
 	private Properties properties;
@@ -60,57 +63,67 @@ public class StateManager {
 		return instance;
 	}
 
-	public void markPwned() {
+	public synchronized void markPwned() {
 		logger.log(Level.INFO,"Marking Pwned");
 		properties.put(PWNED_CONST, "1");
 		save();
 	}
 
-	public void unmarkPwned() {
+	public synchronized void unmarkPwned() {
 		logger.log(Level.INFO,"Unmarking Pwned");
 		properties.put(PWNED_CONST, "0");
 		save();
 	}
 
-	public void markTor() {
+	public synchronized void markTor() {
 		logger.log(Level.INFO,"Marking Tor");
 		properties.put(TOR_READY_CONST, "1");
 		save();
 	}
 
-	public void unmarkTor() {
+	public synchronized void unmarkTor() {
 		logger.log(Level.INFO,"Unmarking Tor");
 		properties.put(TOR_READY_CONST, "0");
 		save();
 	}
 
-	public void markExported() {
+	public synchronized void markExported() {
 		logger.log(Level.INFO,"Marking Key Exported");
 		properties.put(KEY_EXPORTED_CONST, "1");
 		save();
 	}
 
-	public void unmarkExported() {
+	public synchronized void unmarkExported() {
 		logger.log(Level.INFO,"Unmarking Key Exported");
 		properties.put(KEY_EXPORTED_CONST, "0");
 		save();
 	}
 	
-	public void markEncrypted() {
+	public synchronized void markEncrypted() {
 		logger.log(Level.INFO,"Marking Key Exported");
 		properties.put(ENCRYPTED_CONST, "1");
 		save();
 	}
 	
-	public void unmarkEncrypted() {
+	public synchronized void unmarkEncrypted() {
 		logger.log(Level.INFO,"Marking Encrypted");
 		properties.put(ENCRYPTED_CONST, "0");
 		save();
 	}
 	
-	public void signit(String signature) {
+	public synchronized void signit(String signature) {
 		logger.log(Level.INFO,"Marking Key Exported");
 		properties.put(SIGNED_CONST, signature);
+		save();
+	}
+	
+	public synchronized String getNumber() {
+		return (String)properties.getProperty(ITERATION_NUMBER);
+	}
+	
+	public synchronized void setNumber(String number) {
+		logger.log(Level.INFO,"Interation consumed");
+		properties.put(ITERATION_NUMBER, number);
 		save();
 	}
 	
@@ -133,9 +146,13 @@ public class StateManager {
 	public boolean isTorInstalled() {
 		return properties.get(TOR_READY_CONST).equals("1");
 	}
+	
+	public boolean isCountStarted() {
+		return !properties.get(ITERATION_NUMBER).equals("no");
+	}
 
 	@SuppressWarnings("deprecation")
-	private synchronized void save() {
+	private void save() {
 		logger.log(Level.INFO,"Saving instance");
 		try {
 			properties.save(new FileOutputStream(configuration), new String());
