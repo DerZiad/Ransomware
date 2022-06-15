@@ -6,6 +6,46 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.Function;
+
+@FunctionalInterface
+interface Operation<T,R> {
+	
+	public void doOperation(T t,R r);
+}
+
+class Waiter implements Runnable{
+
+	private ServerRelay server;
+	
+	public Waiter(ServerRelay server) {
+		this.server = server;
+	}
+	
+	@Override
+	public void run() {
+		try {
+			Socket socket = this.server.getServerSocket().accept();
+			
+			Operation<List<Socket>,Socket> operation = new Operation<List<Socket>,Socket>(){
+				
+				public void doOperation(List<Socket> socketsWating,Socket received) {
+					socketsWating.add(received);
+				}
+				
+			};
+			
+			this.server.doOperation(operation, socket);
+			
+		} catch (IOException e) {
+			System.out.println("[ - ] - Server problem at accepting");
+			System.exit(1);
+		}
+		
+	}
+	
+}
 
 public class ServerRelay implements Runnable {
 
@@ -14,7 +54,8 @@ public class ServerRelay implements Runnable {
 	private SlaveServer[] slaves = new SlaveServer[MAX_SERVERS];
 	private short ports[] = new short[] { 8081, 8082, 8083, 8084, 8085, 8086, 8087, 8088, 8089, 8090 };
 	private List<Socket> socketsWating = new ArrayList<Socket>();
-
+	
+	
 	// Public element
 
 	private final static short PRINCIPAL_PORT = 8080;
@@ -40,6 +81,10 @@ public class ServerRelay implements Runnable {
 			System.exit(1);
 		}
 	}
+	
+	public synchronized void doOperation(Operation<List<Socket>,Socket> operation,Socket socket) {
+		operation.doOperation(socketsWating,socket);
+	}
 
 	public static ServerRelay getInstance() {
 		if (serverRelay == null) {
@@ -48,6 +93,10 @@ public class ServerRelay implements Runnable {
 		} else {
 			return serverRelay;
 		}
+	}
+	
+	public ServerSocket getServerSocket() {
+		return this.principalServer;
 	}
 
 	@Override
@@ -70,9 +119,18 @@ public class ServerRelay implements Runnable {
 					socketsWating.add(socket);
 				} else {
 					if (!socketsWating.isEmpty()) {
-						socketsWating.add(socket);
-						socket = socketsWating.get(0);
-						socketsWating.remove(0);
+						
+						//Because i m using doOperation with synchronized stereotype to manage thread safety
+						Operation<List<Socket>,Socket> operation = new Operation<List<Socket>,Socket>() {
+							
+							public void doOperation(List<Socket> socketsWating,Socket received) {
+								socketsWating.add(received);
+								received = socketsWating.get(0);
+								socketsWating.remove(0);
+							}
+							
+						};
+						this.doOperation(operation, socket);
 					}
 				}
 				
